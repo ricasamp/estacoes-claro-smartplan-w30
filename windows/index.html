@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#e60000"><meta name="description" content="Consulta offline e online das estações Claro Smartplan W30">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Estações Claro Smartplan W30</title>
+<style>
+:root{font-family:Segoe UI,Arial,sans-serif;color:#202124;background:#f4f6f8}*{box-sizing:border-box}body{margin:0}.top{background:#e60000;color:white;padding:24px max(24px,calc((100% - 1100px)/2));box-shadow:0 2px 8px #0002}.top h1{font-size:clamp(20px,3vw,28px);margin:0 0 6px}.top p{margin:0;opacity:.95}.wrap{max-width:1100px;margin:28px auto;padding:0 20px}.panel{background:white;border-radius:14px;padding:22px;box-shadow:0 2px 12px #0000000d}.searchrow{display:flex;gap:10px;flex-wrap:wrap}input{flex:1;min-width:230px;padding:15px 16px;border:1px solid #c9cdd2;border-radius:9px;font-size:17px}button,.btn{border:0;border-radius:9px;padding:13px 18px;font-weight:600;cursor:pointer;background:#e60000;color:white;font-size:14px;text-decoration:none;display:inline-block}button.secondary{background:#4b5563}.meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#606770;font-size:13px;margin:16px 2px}.results{display:grid;gap:10px;margin-top:14px}.item{border:1px solid #e1e4e8;border-radius:10px;padding:15px 16px;text-align:left;background:#fff;color:#202124;width:100%}.item:hover{border-color:#e60000;background:#fffafa}.code{font-size:16px;font-weight:700}.sub{color:#606770;margin-top:5px;font-size:13px}.empty{padding:25px;text-align:center;color:#69717b}.status{font-size:12px;padding:6px 10px;border-radius:20px;background:#fff0f0;color:#a40000}.status.ok{background:#e8f5e9;color:#176b2c}.detail{margin-top:18px;border-top:1px solid #eee;padding-top:18px;display:none}.detail h2{margin:0 0 12px;color:#d60000}.detail p{line-height:1.55}.actions{display:flex;gap:10px;flex-wrap:wrap}.foot{color:#777;font-size:12px;text-align:center;margin:22px}
+</style>
+</head>
+<body>
+<header class="top"><h1>ESTAÇÕES CLARO SMARTPLAN W30</h1><p>Consulta de estações • pesquisa pelo código • rota de automóvel</p></header>
+<main class="wrap"><section class="panel">
+<div class="searchrow"><input id="q" type="search" placeholder="Digite o código da estação. Ex.: ESP0592" autocomplete="off"><button id="clear" class="secondary">Limpar</button></div>
+<div class="meta"><span id="count">Carregando cadastro...</span><span id="status" class="status">Verificando conexão</span></div>
+<div id="results" class="results"><div class="empty">Carregando estações...</div></div>
+<section id="detail" class="detail"><h2 id="dcode"></h2><p id="dinfo"></p><div class="actions"><a id="maps" class="btn" target="_blank" rel="noopener">IR PARA O SITE — GOOGLE MAPS</a><button id="close" class="secondary">Fechar detalhes</button></div></section>
+</section><p class="foot">Estações Claro Smartplan W30 • A base é atualizada quando houver conexão com a internet.</p></main>
+<script>
+const DATA_URL='https://raw.githubusercontent.com/ricasamp/estacoes-claro-smartplan-w30/main/app/src/main/assets/sites.json';
+let sites=[],selected=null;
+const $=id=>document.getElementById(id);
+function setStatus(online){$('status').textContent=online?'Online • sincronizando cadastro':'Offline • usando cadastro salvo';$('status').className='status '+(online?'ok':'')}
+function address(s){return s.address||[s.streetType,s.street,s.number,s.neighborhood,s.city,s.zip].filter(Boolean).join(', ')}
+function render(query=''){const q=query.trim().toLocaleLowerCase('pt-BR');const found=(q?sites.filter(s=>(s.station||'').toLocaleLowerCase('pt-BR').includes(q)):sites).slice(0,250);$('count').textContent=q?found.length+' resultado(s) para “'+query+'”':('Mostrando '+Math.min(sites.length,250)+' de '+sites.length+' estações. Digite o código para pesquisar.');$('results').replaceChildren();if(!found.length){$('results').innerHTML='<div class="empty">Nenhuma estação encontrada para esse código.</div>';return}for(const s of found){const b=document.createElement('button');b.className='item';const code=document.createElement('div');code.className='code';code.textContent=(s.station||'Sem código')+'  •  '+(s.type||'');const sub=document.createElement('div');sub.className='sub';sub.textContent=address(s);b.append(code,sub);b.onclick=()=>show(s);$('results').append(b)}}
+function show(s){selected=s;$('dcode').textContent=s.station||'Estação';$('dinfo').textContent='Tipo de infraestrutura: '+(s.type||'Não informado')+'\n\nEndereço: '+(address(s)||'Não informado')+'\n\nCEP: '+(s.zip||'Não informado')+'\nCoordenadas: '+(s.latitude!=null&&s.longitude!=null?s.latitude+', '+s.longitude:'Não informadas');$('dinfo').style.whiteSpace='pre-line';const dest=s.latitude!=null&&s.longitude!=null?s.latitude+','+s.longitude:address(s);$('maps').href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(dest)+'&travelmode=driving';$('detail').style.display='block';$('detail').scrollIntoView({behavior:'smooth',block:'nearest'})}
+async function load(){try{const r=await fetch('./data/sites.json',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);sites=await r.json();setStatus(navigator.onLine);render($('q').value)}catch(e){$('count').textContent='Não foi possível carregar o cadastro.';$('results').innerHTML='<div class="empty">Conecte-se à internet na primeira utilização para baixar e guardar a base de estações.</div>';setStatus(false)}}
+$('q').addEventListener('input',e=>render(e.target.value));$('clear').onclick=()=>{$('q').value='';render();$('q').focus()};$('close').onclick=()=>$('detail').style.display='none';window.addEventListener('online',()=>{setStatus(true);load()});window.addEventListener('offline',()=>setStatus(false));
+if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error))}
+load();
+</script></body></html>
