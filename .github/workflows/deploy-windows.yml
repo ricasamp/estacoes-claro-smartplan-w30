@@ -30,6 +30,7 @@ jobs:
           cp windows/index.html public/index.html
           cp windows/manifest.webmanifest public/manifest.webmanifest
           cp windows/sw.js public/sw.js
+          cp windows/icon.svg public/icon.svg
       - name: Publicar arquivos
         uses: actions/upload-pages-artifact@v3
         with:
