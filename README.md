@@ -35,3 +35,27 @@ Abra `preview.html` em um navegador para experimentar a pesquisa por código, co
 - O ZIP contém código-fonte, base de estações, prévia HTML e configuração para compilação automática no GitHub Actions; **não contém um APK compilado**.
 - O APK `debug` é adequado para teste e instalação manual. Para publicação na Play Store, será necessário preparar assinatura de release e revisar os requisitos de publicação.
 - Valide endereços e coordenadas com a equipe responsável antes de uso operacional.
+
+
+## Versão Windows (online e offline)
+
+O repositório também inclui uma versão instalável para Windows 10/11, em formato PWA (aplicativo web progressivo).
+
+### Publicar a versão Windows
+1. Abra **Settings > Pages** no repositório e selecione **GitHub Actions** como fonte de publicação, se ainda não estiver selecionado.
+2. Abra **Actions** e execute **Publicar versão Windows (PWA)** com **Run workflow**. Alterações futuras na pasta `windows/` também iniciam a publicação automaticamente.
+3. Após a primeira publicação, acesse: https://ricasamp.github.io/estacoes-claro-smartplan-w30/
+
+### Instalar no Windows
+1. Abra o endereço acima no Microsoft Edge ou Google Chrome.
+2. No Edge, use o ícone **Instalar aplicativo** na barra de endereço (ou menu > Aplicativos > Instalar este site como aplicativo). No Chrome, use **Instalar página como app**.
+3. O aplicativo aparecerá no menu Iniciar e poderá ser fixado na barra de tarefas ou na área de trabalho.
+
+### Funcionamento online e offline
+- Na primeira utilização, conecte o computador à internet para carregar e guardar a base completa de estações.
+- Nas próximas utilizações, o aplicativo tenta atualizar a base pela internet e, se estiver sem conexão, utiliza a última base guardada no navegador.
+- A pesquisa continua sendo somente pelo código da estação.
+- O botão de rota abre o Google Maps com modo de automóvel; para carregar mapas e rotas, é necessária conexão com a internet.
+- Para garantir que a base offline seja guardada, aguarde a lista de estações aparecer antes de fechar o aplicativo pela primeira vez.
+
+A versão Windows utiliza os mesmos dados JSON do aplicativo Android no próprio repositório; não mantém um cadastro paralelo. O aplicativo Android permanece inalterado.
