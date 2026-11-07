@@ -1,0 +1,39 @@
+name: Publicar versão Windows (PWA)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'windows/**'
+      - '.github/workflows/deploy-windows.yml'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Preparar site Windows
+        run: |
+          mkdir -p public/data
+          cp windows/index.html public/index.html
+          cp windows/manifest.webmanifest public/manifest.webmanifest
+          cp windows/sw.js public/sw.js
+      - name: Publicar arquivos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - name: Implantar site
+        id: deployment
+        uses: actions/deploy-pages@v4
